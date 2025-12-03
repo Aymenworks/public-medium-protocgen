@@ -1,0 +1,59 @@
+syntax = "proto3";
+
+package proto.v1;
+
+import "buf/validate/validate.proto";
+import "google/api/annotations.proto";
+import "proto/v1/option.proto";
+
+option go_package = "v1/test";
+
+service TestService {
+  rpc TestNoPermissions(TestNoPermissionsRequest) returns (TestNoPermissionsResponse) {
+    option (google.api.http) = {
+      post: "/v1/test/{foo_id}"
+      body: "*"
+    };
+    option (proto.v1.authz) = {no_auth_required: true};
+  }
+
+  rpc TestWithPermissions(TestWithPermissionsRequest) returns (TestWithPermissionsResponse) {
+    option (google.api.http) = {
+      post: "/v1/test2/{foo_id}"
+      body: "*"
+    };
+    option (proto.v1.authz) = {
+      permissions: ["read:all"]
+    };
+  }
+
+  rpc TestWithNothing(TestWithPermissionsRequest) returns (TestWithPermissionsResponse) {
+    option (google.api.http) = {
+      post: "/v1/test2/{foo_id}"
+      body: "*"
+    };
+  }
+}
+
+message TestNoPermissionsRequest {
+  string email = 1 [(buf.validate.field) = {
+    cel: {
+      id: "test.test"
+      message: "メールアドレスの形式が不正です"
+      expression: "this.matches(r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$')"
+    }
+  }];
+}
+
+message TestNoPermissionsResponse {}
+
+message TestWithPermissionsRequest {
+  string email = 1 [(buf.validate.field) = {
+    cel: {
+      id: "test.test"
+      message: "メールアドレスの形式が不正です"
+      expression: "this.matches(r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$')"
+    }
+  }];
+}
+message TestWithPermissionsResponse {}

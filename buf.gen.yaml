@@ -1,0 +1,16 @@
+version: v2
+clean: true
+managed:
+  enabled: true
+  disable:
+    - file_option: go_package_prefix
+plugins:
+  - local: [go, tool, google.golang.org/protobuf/cmd/protoc-gen-go]
+    out: ./gen
+    opt:
+      - paths=import
+  - local: [go, run, ./protoc-gen-go-authz]
+    out: ./gen
+    opt:
+      - paths=source_relative
+    strategy: all

@@ -1,0 +1,16 @@
+syntax = "proto3";
+
+package proto.v1;
+
+import "google/protobuf/descriptor.proto";
+
+option go_package = "v1/test";
+
+extend google.protobuf.MethodOptions {
+  Authz authz = 50001;
+}
+
+message Authz {
+  repeated string permissions = 1;
+  bool no_auth_required = 2;
+}
